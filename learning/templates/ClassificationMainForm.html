@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% block content %}
+	<h3>{{ message }}</h3>
+	<img src="{{ imageURL }}" width="500px" height="500px"/>
+	<form action={% url 'classify' %} method="POST" enctype='multipart/form-data'/>
+	{% csrf_token %}
+		<input type="hidden" value="{{ imagename }}" name='image'/>
+		<input type="hidden" value="{{ imageID }}" name='formID'/>
+		<input type="submit" value="Use image for classification">
+	</form>
+{% endblock %}

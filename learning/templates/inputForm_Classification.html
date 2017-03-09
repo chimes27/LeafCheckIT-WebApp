@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% block content %}
+<article class="col-sm-15 maincontent">
+<form method="POST" enctype='multipart/form-data'/>
+	{% csrf_token %}
+	{{ form.as_p }}
+	<input type="Submit" value="Click here to upload image">
+</form>
+</article>
+{% endblock %}
