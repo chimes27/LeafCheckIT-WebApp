@@ -32,7 +32,12 @@ def main(input_img):
 
     
     if not os.path.isfile(imgDir):
-        raise IOError("The " + imgDir + "  image directory does not exist! ")
+        testDir = os.path.join(media_dir, 'testImages')
+        imgDir = os.path.join(testDir, input_img)
+        if not os.path.isfile(imgDir): 
+            raise IOError("The " + imgDir + "  image directory does not exist! ")
+        else:
+            img = cv2.imread(imgDir)
     else:
         img = cv2.imread(imgDir)
 

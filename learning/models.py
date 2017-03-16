@@ -21,9 +21,21 @@ def create_auth_token(sender, instance=None, created=False, **kwargs):
 	if created:
 		Token.objects.create(user=instance)
 
-class ImageDetailsManager(models.Manager):
-	def getApprovedData(self):
-		return self.get_queryset().filter(status="OK")
+
+class ApprovedImagesManager(models.Manager):
+	def get_queryset(self):
+		return super(ApprovedImagesManager, self).get_queryset().filter(status='OK')
+
+#class ImageDetailsManager(models.Manager):
+
+	#def get_queryset(self):
+	#	return self.get_queryset().filter(status="OK")
+	
+	#def get_queryset(self):
+	#	return super(ImageDetailsManager, self).get_queryset().filter(status='OK')
+		#return self.queryset.filter(status=='OK')
+		#return self.get_queryset().filter(status="OK")
+
 		
 
 class ImageDetails(models.Model):
@@ -36,16 +48,17 @@ class ImageDetails(models.Model):
 		('X', 'Rejected'),
 		('Y', 'Pending'),
 	)
-	category = models.ForeignKey('Categories', on_delete= models.CASCADE)
+	category = models.ForeignKey('Categories', on_delete= models.CASCADE, default=1)
 	date_uploaded = models.DateTimeField(auto_now_add=True)
 	image = models.ImageField(null=True, upload_to="datasets")	
 	status = models.CharField(max_length=100, choices=STATUS_CHOICES, default='Y')
 	user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, default=1)
-	objects = ImageDetailsManager()
+	
+	objects = models.Manager()
+	appImgObj = ApprovedImagesManager()
 
 	def category_path(category):
 		return format(category)
-
 
 	def image_img(self):
 		if self.image:
@@ -66,9 +79,12 @@ class Categories(models.Model):
 		verbose_name_plural = "  Categories"
 
 class GetApprovedImages(ImageDetails):
+	objects = ApprovedImagesManager()
+
 	class Meta:
 		proxy = True
 		verbose_name_plural = " View Training Images"
+
 
 
 ###### USER UPLOADS MODEL #######

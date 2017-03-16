@@ -19,12 +19,12 @@ urlpatterns = [
 	url(r'^login/$', views.login, name="login"),
 	url(r'^logout/$', views.logout, name="logout"),
 	url(r'^signup/$', views.signup, name='signup'),
-	url(r'api-categories', views.CategoriesList.as_view()),
-	url(r'api-user-create', views.CreateUsers.as_view()),
-	url(r'api-get-user', views.APIViewUsers.as_view()),
-	#url(r'api-user-auth', views.LoginAPIUsers.as_view()),
-	url(r'api-user-logout', views.LogoutAPIUsers.as_view()),
-	url(r'api-token-auth', rest_framework_views.obtain_auth_token),
+	url(r'^api-categories', views.CategoriesList.as_view()),
+	url(r'^api-user-create', views.CreateUsers.as_view()),
+	url(r'^api-get-user', views.APIViewUsers.as_view()),
+	url(r'^api-user-logout', views.LogoutAPIUsers.as_view()),
+	url(r'^api-token-auth', rest_framework_views.obtain_auth_token),
+	url(r'^api-imageUpload', views.ImageDetailsViewSet.as_view()),
 	url(r'^$', views.index, name='index'),
 ]
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

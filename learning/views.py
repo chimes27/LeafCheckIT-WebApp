@@ -12,15 +12,20 @@ from .backends import EmailAuthBackend
 from django.contrib.auth.decorators import login_required
 from .serializers import *
 
-from rest_framework import mixins
+from rest_framework import mixins, viewsets
 from rest_framework import generics
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from rest_framework.exceptions import ParseError
+from rest_framework.exceptions import ParseError, ValidationError
 from .auth import RestAuthentication
+#from django.views.decorators.csrf import ensure_csrf_cookie
+#from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.renderers import JSONRenderer
+import json
+from django.forms.models import model_to_dict
 
 def index(request):
 	index = 'index.html'
@@ -124,6 +129,17 @@ def account(request):
 	else:
 		return HttpResponse("bad request")
 
+##############################################
+# API Views 								 #
+#											 #
+##############################################
+
+class SetEncoder(json.JSONEncoder):
+	def default(self, obj):
+		if isinstance(obj, set):
+			return list(obj)
+		return json.JSONEncoder.default(self, obj)
+
 class CategoriesList(generics.ListCreateAPIView):
 	queryset = Categories.objects.all()
 	serializer_class = CategoriesSerializer
@@ -146,12 +162,124 @@ class APIViewUsers(APIView):
 		serializer = UserSerializer(user)
 		return Response(serializer.data)
 
-class LogoutAPIUsers(APIView):
+class LogoutAPIUsers(APIView):	
 	
 	def get(self, request, format=None):
 		request.user.auth_token.delete()
 		return Response(status=status.HTTP_200_OK)
 
+class ImageDetailsViewSet(APIView):
+	renderer_classes = (JSONRenderer,)
+	def post(self, request, *args, **kwargs):
+		try:
+			#serializer = ImageDetailsSerializer(data=request.data)
+			serializer = UserTestResultsSerializer(data=request.data)
+			if serializer.is_valid():
+				serializer.save()
+				label = tryclassify(serializer.validated_data['image'].name)
+				strLabel = str(label)
+				return Response({'label': strLabel}, status=status.HTTP_201_CREATED)
+			return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+		except:
+			raise 
+			return Response(status=status.HTTP_415_BAD_REQUEST)
+
+def tryclassify(imageName):
+	if imageName.endswith('.jpg') == True or imageName.endswith('.png') == True:
+		label = classifier.main(imageName)
+	return label
+
+
+
+
+
+'''
+class ImageDetailsViewSet(APIView):
+
+	def post(self,request, *args, **kwargs):
+		try:
+			imgStr = request.data['image']
+
+			media_filename = os.path.join(settings.MEDIA_ROOT, 'img.jpg')
+			media_url = settings.MEDIA_URL + 'img.jpg'
+			
+
+			img = Image.open(StringIO(imgStr.decode('base64')))
+			img.save(media_filename, 'JPEG')
+
+			#request.data['image'] = media_filename
+			request.data['user'] = request.user
+
+			#data1 = {'image': media_filename, 'category': 1, 'status': 'Y', 'user': user}
+
+			serializer = ImageDetailsSerializer(data=request.data)
+			if serializer.is_valid():
+				serializer.save()
+				return Response(serializer.data, status=status.HTTP_201_CREATED)
+			return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+		except:
+			raise
+			return Response(serializer.errors, status=status.HTTP_415_BAD_REQUEST)
+
+
+			#img_out = cStringIO.StringIO()
+			#img_out.write(imgData.decode('base64'))
+			#img_out.seek(0)
+			
+			
+
+			#image = SimpleUploadedFile(media_file, img_out.read(), content_type='image/png')
+'''
+
+
+
+'''
+try:
+	media_dir = settings.MEDIA_ROOT
+
+	if not os.path.exists(media_dir):
+		os.makedirs(media_dir)
+	imageFile = os.path.join(media_dir, "img.png")
+
+	with open(imageFile, "wb") as fh:
+		fh.write(base64.decodestring(image))
+	fh.close
+	return Response(status=status.HTTP_200_OK)
+except:
+	raise
+	return Response(status=status.HTTP_400_BAD_REQUEST)
+'''
+
+
+'''
+class ImageDetailsViewSet(generics.ListCreateAPIView):
+	queryset = ImageDetails.objects.all()
+	serializer_class  = ImageDetailsSerializer
+	
+	
+	def create(self, request, *args, **kwargs):
+		serializer = self.get_serializer(data=request.data)		
+
+		if not serializer.is_valid():
+			print(serializer.errors)
+			raise ValidationError(serializer.errors)
+		self.perform_create(serializer)
+		headers = self.get_success_headers(serializer.data)
+		return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+'''	
+'''
+class ImageDetailsView(APIView):
+	serializer_class  = ImageDetailsSerializer
+	#parser_classes = (MultiPartParser, FormParser,)
+	def post(self, request, format=None):
+
+		serializer = ImageDetailsSerializer(data=request.data)
+		if serializer.is_valid():
+			serializer.save()
+			return Response(serializer.data, status=status.HTTP_201_CREATED)
+		else:
+			return Response(serializer.data, status=status.HTTP_400_BAD_REQUEST)	
+'''
 
 
 '''

@@ -1,6 +1,11 @@
+from __future__ import unicode_literals
 from rest_framework import serializers
 from django.contrib.auth.models import User
-from .models import Categories, User
+from django.utils.translation import ugettext_lazy as _
+from .models import Categories, User, ImageDetails, UserTestResults
+from .fields import Base64ImageField
+from drf_extra_fields.fields import Base64ImageField
+
 
 class CategoriesSerializer(serializers.ModelSerializer):
 	class Meta:
@@ -32,3 +37,15 @@ class UserSerializer(serializers.ModelSerializer):
 			return user
 		else:
 			return None
+
+class ImageDetailsSerializer(serializers.ModelSerializer):
+	image = Base64ImageField()	
+	class Meta:
+		model = ImageDetails
+		fields= ('image','status','category', 'user')
+
+class UserTestResultsSerializer(serializers.ModelSerializer):
+	image = Base64ImageField()	
+	class Meta:
+		model = UserTestResults
+		fields= ('image','status','classifierResult', 'user')

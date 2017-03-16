@@ -96,9 +96,8 @@ class GetApprovedImagesAdmin(admin.ModelAdmin):
  	actions = [trainImages]
  	ordering = ('-category',)
  	pass
- 	def queryset(self,request):
- 		return self.model.objects.filter(status='OK')
  	
+
  	def has_add_permission(self,request):
  		return False
 
