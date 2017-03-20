@@ -9,8 +9,8 @@ import cv2
 import argparse
 import cPickle as pickle
 import numpy as np
-from sklearn import preprocessing, cross_validation
-
+from sklearn import preprocessing
+from sklearn.model_selection import train_test_split
 from django.conf import settings
 
 
@@ -58,8 +58,8 @@ class SVMClassify(object):
         self.le.fit(label)
         leLabels = np.array(self.le.transform(label), dtype=np.float32)
 
-        features_train, features_test = cross_validation.train_test_split(features, test_size=0.4, random_state=0)
-        labels_train, labels_test = cross_validation.train_test_split(leLabels, test_size=0.4, random_state=0)
+        features_train, features_test, labels_train, labels_test= train_test_split(features, leLabels, test_size=0.4, random_state=0)
+        #labels_train, labels_test = cross_validation.train_test_split(leLabels, test_size=0.4, random_state=0)
         result = self.training(features_train, labels_train)
         self.crossValidation(result, features_test, labels_test)
         self.model = cv2.SVM()

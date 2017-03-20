@@ -1,0 +1,10 @@
+#DisplayResult_img{
+	width: 250px;
+	height: 250px;
+}
+.DisplayResult_table tr th{
+	padding: 20px;
+}
+#footer{
+	min-height: 20%;
+}

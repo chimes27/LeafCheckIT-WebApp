@@ -78,6 +78,7 @@ class Categories(models.Model):
 	class Meta:
 		verbose_name_plural = "  Categories"
 
+
 class GetApprovedImages(ImageDetails):
 	objects = ApprovedImagesManager()
 
@@ -97,6 +98,7 @@ class UserTestResults(models.Model):
 	image = models.ImageField(null=False, upload_to="testImages")
 	classifierResult = models.CharField(max_length = 100, default='unknown')
 	status = models.CharField(max_length=100, choices=STATUS_CHOICES, default='Y')
+	date = models.DateTimeField(auto_now_add=True)
 	user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, default=1)
 
 

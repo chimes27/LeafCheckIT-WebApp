@@ -13,6 +13,8 @@ import shutil
 import os
 import uuid
 
+
+
 def approveImage(modeladmin, request, queryset):
 	queryset.update(status='OK')
 approveImage.short_description = "Mark selected as approved"
@@ -120,7 +122,8 @@ class UserTestResultsAdmin(admin.ModelAdmin):
  		return False
 
 
-
+admin.site.site_header = 'LeafCheckIT Administration'
+admin.site.site_title = 'LeafCheckIT'
 admin.site.register(User)
 admin.site.register(ImageDetails, ImageDetailsAdmin)
 admin.site.register(Categories)

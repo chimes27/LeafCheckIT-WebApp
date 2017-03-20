@@ -45,7 +45,11 @@ class ImageDetailsSerializer(serializers.ModelSerializer):
 		fields= ('image','status','category', 'user')
 
 class UserTestResultsSerializer(serializers.ModelSerializer):
-	image = Base64ImageField()	
+	image = Base64ImageField()
+
 	class Meta:
 		model = UserTestResults
 		fields= ('image','status','classifierResult', 'user')
+
+	
+		

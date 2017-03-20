@@ -2,6 +2,7 @@
 {% block content %}
 
 <h1>Account Information</h1>
+<p><a href={% url 'getUserTestResults' %}>View Test Results</a></p>
 <ul>
 	<li>First Name: {{ user.fname }}</li>
 	<li>Last Name: {{ user.lname }}</li>

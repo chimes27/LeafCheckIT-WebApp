@@ -21,7 +21,7 @@ a:link, a:visited {
 }
 
 a:focus, a:hover {
-    color: #036;
+    color: #022d10;
 }
 
 a:focus {
@@ -513,7 +513,7 @@ input[type=button][disabled].default {
     font-weight: 400;
     font-size: 13px;
     text-align: left;
-    background: #00a651;
+    background: #79aec8;
     color: #fff;
 }
 
@@ -877,7 +877,7 @@ table#change-history tbody th {
 #user-tools a:focus, #user-tools a:hover {
     text-decoration: none;
     border-bottom-color: #79aec8;
-    color: #79aec8;
+    color: #fff;
 }
 
 /* SIDEBAR */

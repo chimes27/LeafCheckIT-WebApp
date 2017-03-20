@@ -11,6 +11,7 @@ from django.contrib.auth import login as django_login, logout as django_logout, 
 from .backends import EmailAuthBackend
 from django.contrib.auth.decorators import login_required
 from .serializers import *
+from django.template import RequestContext
 
 from rest_framework import mixins, viewsets
 from rest_framework import generics
@@ -21,11 +22,12 @@ from rest_framework.authentication import SessionAuthentication, BasicAuthentica
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.exceptions import ParseError, ValidationError
 from .auth import RestAuthentication
-#from django.views.decorators.csrf import ensure_csrf_cookie
-#from rest_framework.parsers import MultiPartParser, FormParser
-from rest_framework.renderers import JSONRenderer
-import json
-from django.forms.models import model_to_dict
+
+
+#from rest_framework.renderers import JSONRenderer
+#import json
+#from django.forms.models import model_to_dict
+from django.http import JsonResponse
 
 def index(request):
 	index = 'index.html'
@@ -127,19 +129,27 @@ def account(request):
 		user = User.objects.get(email=email)
 		return render(request, 'account.html', {'user': user})
 	else:
-		return HttpResponse("bad request")
+		return HttpResponse("Bad Request")
+
+def getUserTestResults(request):
+	if request.user.is_authenticated:
+		user = request.user
+		result = UserTestResults.objects.filter(user=user)
+		return render(request, 'viewTestResults.html', {'result': result})
+	else:
+		return HttpResponse("Bad Request")
 
 ##############################################
 # API Views 								 #
 #											 #
 ##############################################
-
+'''
 class SetEncoder(json.JSONEncoder):
 	def default(self, obj):
 		if isinstance(obj, set):
 			return list(obj)
 		return json.JSONEncoder.default(self, obj)
-
+'''
 class CategoriesList(generics.ListCreateAPIView):
 	queryset = Categories.objects.all()
 	serializer_class = CategoriesSerializer
@@ -169,27 +179,63 @@ class LogoutAPIUsers(APIView):
 		return Response(status=status.HTTP_200_OK)
 
 class ImageDetailsViewSet(APIView):
-	renderer_classes = (JSONRenderer,)
+	serializer_class = UserTestResultsSerializer
+	
 	def post(self, request, *args, **kwargs):
 		try:
 			#serializer = ImageDetailsSerializer(data=request.data)
 			serializer = UserTestResultsSerializer(data=request.data)
 			if serializer.is_valid():
 				serializer.save()
-				label = tryclassify(serializer.validated_data['image'].name)
+				#label = tryclassify(serializer.validated_data['image'].name)
+				imageName = serializer.validated_data['image'].name
+				if imageName.endswith('.jpg') == True or imageName.endswith('.png') == True:
+					label = classifier.main(imageName)
 				strLabel = str(label)
-				return Response({'label': strLabel}, status=status.HTTP_201_CREATED)
+
+				listdesc = Categories.objects.filter(category=strLabel).values('description')
+				dum = listdesc[0]
+				desc = dum['description']
+				return Response({'label': strLabel, 'desc': desc}, status=status.HTTP_201_CREATED)
 			return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 		except:
 			raise 
 			return Response(status=status.HTTP_415_BAD_REQUEST)
 
+class GetTestResult(APIView):
+	def get(self, request):
+		if request.user.is_authenticated:
+			user = request.user
+			result = UserTestResults.objects.filter(user=user).order_by('-date')
+			data = {}
+			image = []
+			category = []
+			for item in result:
+				category.append(item.classifierResult)
+				imgpath = settings.BASE_URL + settings.MEDIA_URL + item.image.name
+				image.append(imgpath)
+			data = {'category': category, 'image': image}
+			return Response(data, status=status.HTTP_200_OK)
+		else:
+			return Response(status=status.HTTP_403_FORBIDDEN_REQUEST)
+		
+		
+
+'''
+class ViewUserTestResults(APIView):
+	def get(self, request, format=None):
+		user = request.user
+		result = UserTestResults.objects.filter(user=user)
+		response = JsonResponse(result, safe=False)
+		return Response(response)
+'''
+
+'''
 def tryclassify(imageName):
 	if imageName.endswith('.jpg') == True or imageName.endswith('.png') == True:
 		label = classifier.main(imageName)
 	return label
-
-
+'''
 
 
 
