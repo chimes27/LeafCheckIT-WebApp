@@ -3,7 +3,6 @@ from rest_framework import serializers
 from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
 from .models import Categories, User, ImageDetails, UserTestResults
-from .fields import Base64ImageField
 from drf_extra_fields.fields import Base64ImageField
 
 
@@ -46,10 +45,10 @@ class ImageDetailsSerializer(serializers.ModelSerializer):
 
 class UserTestResultsSerializer(serializers.ModelSerializer):
 	image = Base64ImageField()
-
+	id = serializers.ReadOnlyField()
 	class Meta:
 		model = UserTestResults
-		fields= ('image','status','classifierResult', 'user')
+		fields= ('id','image','status','classifierResult', 'user')
 
 	
 		

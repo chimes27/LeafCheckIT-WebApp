@@ -1,0 +1,131 @@
+'''
+Description: Training SVM algorithm using Sift Descriptors
+Author: J. Tejada
+Version: 2.0
+Date: 9/13/16
+'''
+import os
+import cv2
+import argparse
+import cPickle as pickle
+import numpy as np
+from sklearn import preprocessing, cross_validation
+
+from django.conf import settings
+
+
+from sklearn.multiclass import OneVsOneClassifier
+from sklearn.svm import LinearSVC, SVC
+from sklearn import preprocessing, cross_validation
+import timeit
+
+class SVMClassify(object):
+
+    def __init__(self, features, label, C=1, gamma = 0.5,):
+        '''
+        4 FOLD CROSS VALIDATION RESULTS (DATASETS: 60 FISH IMAGES):
+            POLY:
+                PARAMETERS: {D: 1.0 COEF0: 0 C:1 GAMMA: 0.5}; 
+                ERROR: 45.83%
+            RBF:
+                PARAMETERS: {C:1 GAMMA: 0.5}
+                ERROR: 75%
+            LINEAR:
+                PARAMETERS: {C:1 GAMMA: 0.5}
+                ERROR: 45.83%
+
+        '''
+        '''
+        self.params = dict(kernel_type=cv2.SVM_LINEAR,
+                           svm_type=cv2.SVM_C_SVC,
+                           C=C)
+
+        '''
+
+        '''
+        self.params = dict(kernel_type = cv2.SVM_RBF,
+                           svm_type = cv2.SVM_C_SVC,
+                           C = C,
+                           gamma = gamma)
+        
+        self.le = preprocessing.LabelEncoder()
+        self.le.fit(label)
+        leLabels = np.array(self.le.transform(label),dtype=np.float32)
+        self.training(features,leLabels)
+        self.model = cv2.SVM()
+        '''
+        
+        self.le = preprocessing.LabelEncoder
+        labels = self._encodeLabels(label)
+        features = np.asarray(features)
+        features_train, features_test = cross_validation.train_test_split(features, test_size=0.4, random_state=0)
+        labels_train, labels_test = cross_validation.train_test_split(labels, test_size=0.4, random_state=0)
+
+        self.clf = SVC()
+        self.clf.set_params(kernel='linear').fit(features_train, labels_train)
+        error = self.clf.score(features_test, labels_test).mean()
+        print 'Relative absolute    error: %.2f %%' % (error * 100)
+
+        self.clf.set_params(kernel='rbf').fit(features_train, labels_train)
+        error = self.clf.score(features_test, labels_test).mean()
+        print 'Relative absolute    error: %.2f %%' % (error * 100)
+
+
+    def _encodeLabels(self,labelsMap):
+        self.le = preprocessing.LabelEncoder()
+        self.le.fit(labelsMap)
+        leLabels = np.array(self.le.transform(labelsMap), dtype=np.float32)
+        return leLabels
+
+    def predict(self,X):
+        labels_nums = self.clf.predict(X)
+        labels_words = self.le.inverse_transform([int(x) for x in labels_nums])
+        return labels_words
+
+    def crossValidation(self, model, features_test, labels_test):
+        features_test = np.array(features_test, dtype=np.float32)
+        predictionResult = []
+        for item in features_test:
+            res = self.model.predict(item)
+            predictionResult.append(res)
+
+        itemNum = len(predictionResult)
+        for result in predictionResult:
+            error = (labels_test != predictionResult).mean()
+        print 'Precent Error: %.2f %%' % (error * 100)
+
+        confusion = np.zeros((3, 3), np.int32)
+        for i, j in zip(labels_test, predictionResult):
+            confusion[i, j] += 1
+        print 'confusion matrix:'
+        print confusion
+
+        return
+
+def main(feature_map_file):
+
+    model_dir = settings.MODELS_ROOT
+    svm_filename =  os.path.join(model_dir, "svm.pkl")
+
+    with open(feature_map_file, 'r') as f:
+        feature_map = pickle.load(f)
+
+    features=[]
+    labels=[]
+    for item in feature_map:
+        features.append(item['features'])
+        labels.append(item['label'])
+
+    svm = SVMClassify(features,labels)
+
+
+    with open(svm_filename, 'w') as f:
+        pickle.dump(svm,f)
+
+    print("The SVM File has been saved!")
+    return svm_filename
+    
+
+
+if __name__=='__main__':
+    main()

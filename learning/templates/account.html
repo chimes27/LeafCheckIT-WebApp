@@ -4,10 +4,9 @@
 <h1>Account Information</h1>
 <p><a href={% url 'getUserTestResults' %}>View Test Results</a></p>
 <ul>
-	<li>First Name: {{ user.fname }}</li>
-	<li>Last Name: {{ user.lname }}</li>
+	<li class="list-capitalize">First Name: {{ user.firstName }}</li>
+	<li class="list-capitalize">Last Name: {{ user.lastName }}</li>
 	<li>Email: {{ user.email }}</li>
-
 </ul>
 
 {% endblock %}

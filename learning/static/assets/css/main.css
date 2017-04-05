@@ -63,7 +63,7 @@ img.pull-left { margin-right: 10px; }
 
 /* Footer */
 
-.footer1 { background: #f5fff9; padding: 30px 0 0 0; font-size: 12px; color: #277346; } 
+.footer1 { background: #f5fff9; padding: 30px 0 0 30px; font-size: 12px; color: #277346;} 
 	.footer1 a { color: #00a651; }
 		.footer1 a:hover {color: #022d10; }
 	.footer1 .widget { margin-bottom:30px; }		

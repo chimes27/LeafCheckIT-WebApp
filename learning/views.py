@@ -60,18 +60,20 @@ def classify(request):
 		imageName = request.POST['image']
 		formID = request.POST['formID']
 		label = classifier.main(imageName)
-
+		result = str(label)
+		resURL = result.lower()	
 		UserTestResults.objects.filter(pk=formID).update(classifierResult=label)
-		return HttpResponse("<p>Classifier Result: "+ str(label) +"<p>")
+		return render(request, 'classificationResult.html', {'result': result, 'resURL': resURL})
+		#return HttpResponse("<p>Classifier Result: "+ str(label) +"<p>")
 	else:
-		return HttpResponse("<p>Error in using image. Please reupload it.</p>")
+		return render(request, "<p>Error in using image. Please reupload it.</p>")
 
-def aboutNitrogen(request):
-	return render(request, 'aboutNitrogen.html')
-def aboutPhosphorus(request):
-	return render(request, 'aboutPhosphorus.html')
-def aboutPotassium(request):
-	return render(request, 'aboutPotassium.html')
+def nitrogen(request):
+	return render(request, 'nitrogen.html')
+def phosphorus(request):
+	return render(request, 'phosphorus.html')
+def potassium(request):
+	return render(request, 'potassium.html')
 
 def aboutLeafCheckIT(request):
 	return render(request,'aboutLeafCheckIT.html')
@@ -181,18 +183,20 @@ class LogoutAPIUsers(APIView):
 class ImageDetailsViewSet(APIView):
 	serializer_class = UserTestResultsSerializer
 	
-	def post(self, request, *args, **kwargs):
+	def post(self,request, *args, **kwargs):
 		try:
 			#serializer = ImageDetailsSerializer(data=request.data)
 			serializer = UserTestResultsSerializer(data=request.data)
 			if serializer.is_valid():
 				serializer.save()
+				pk = serializer.data['id']
 				#label = tryclassify(serializer.validated_data['image'].name)
 				imageName = serializer.validated_data['image'].name
 				if imageName.endswith('.jpg') == True or imageName.endswith('.png') == True:
 					label = classifier.main(imageName)
 				strLabel = str(label)
 
+				UserTestResults.objects.filter(id=pk).update(classifierResult=strLabel)
 				listdesc = Categories.objects.filter(category=strLabel).values('description')
 				dum = listdesc[0]
 				desc = dum['description']

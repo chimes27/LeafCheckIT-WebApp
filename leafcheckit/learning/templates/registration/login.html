@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block content %}
+<h3>Login to your LeafCheckIT account</h3>
+
+<article>
+<form action={% url 'login' %} method="POST"/>
+	{% csrf_token %}
+	{{ form.as_p }}
+	<!--
+	<p>
+		<label for="email">Email</label>
+		<input type="email" name="email"/>
+	</p>
+	<p>
+		<label for="password">Password</label>
+		<input type="password" name="password">
+	</p>
+
+	-->
+	<p>
+	<input type="submit" value="Login">
+	</p>
+</form>
+</article>
+<p>Not yet a member?</p>
+<p>Click <a href="{% url 'signup' %}">here</a> to create an account</p>
+{% endblock %}
