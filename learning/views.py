@@ -60,10 +60,15 @@ def classify(request):
 		imageName = request.POST['image']
 		formID = request.POST['formID']
 		label = classifier.main(imageName)
+		
 		result = str(label)
-		resURL = result.lower()	
+			
+
 		UserTestResults.objects.filter(pk=formID).update(classifierResult=label)
-		return render(request, 'classificationResult.html', {'result': result, 'resURL': resURL})
+		listdesc = Categories.objects.filter(category=result).values('description')
+		dum = listdesc[0]
+		desc = dum['description']
+		return render(request, 'classificationResult.html', {'result': result, 'desc': desc})
 		#return HttpResponse("<p>Classifier Result: "+ str(label) +"<p>")
 	else:
 		return render(request, "<p>Error in using image. Please reupload it.</p>")
@@ -85,7 +90,8 @@ def signup(request):
 			user = form.save()
 			return redirect('/')
 		else:
-			return HttpResponse("Please fill all needed data")
+			#message = "Email account already registered. Please login to your LeafCheckIT account"
+			return render(request,'signupForm.html',{'form': form})
 	else:
 		form = signupForm()
 		return render(request, 'signupForm.html', {'form': form})
@@ -110,9 +116,11 @@ def login(request):
 				django_login(request, user)
 				return render(request, 'account.html')
 			else:
-				return HttpResponse("wrong credentials")
+				message = "Wrong email address or password"
+				return render(request, 'login.html',{'form': form, 'message': message})
 		else:
-			return HttpResponse("Please fill all missing data")
+			message = "Please fill the necessary data"
+			return render(request, 'login.html',{'form': form, 'message': message})
 	else:
 		form = loginForm()
 		return render(request, 'login.html', {'form': form})

@@ -57,6 +57,7 @@ def useAsTrainingImage(modeladmin,request,queryset):
 			fkId = int(item['id'])
 		
 		imageURL = obj.image.name
+		'''
 		imageSplitName = imageURL.split("/")
 		imageName = imageSplitName[-1]
 
@@ -78,9 +79,11 @@ def useAsTrainingImage(modeladmin,request,queryset):
 		newImageURL = "datasets/" + newImageName		
 		
 		##save image
-		newData = ImageDetails(image=newImageURL,status=status,category=Categories.objects.get(pk=fkId))
+		#newData = ImageDetails(image=newImageURL,status=status,category=Categories.objects.get(pk=fkId))
+		'''
+		newData = ImageDetails(image=imageURL,status=status,category=Categories.objects.get(pk=fkId))
 		newData.save()
-		obj.update(image=newImageURL)
+		#obj.update(image=newImageURL)
 		messages.add_message(request, messages.SUCCESS, mark_safe('<p>The test results are successfully marked as valid dataset!</p>'))
 		
 useAsTrainingImage.short_description = 'Mark result as valid dataset'

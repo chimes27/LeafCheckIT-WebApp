@@ -99,7 +99,7 @@ class UserTestResults(models.Model):
 	classifierResult = models.CharField(max_length = 100, default='unknown')
 	status = models.CharField(max_length=100, choices=STATUS_CHOICES, default='Y')
 	date = models.DateTimeField(auto_now_add=True)
-	user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, default=1)
+	user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
 
 	class Meta:

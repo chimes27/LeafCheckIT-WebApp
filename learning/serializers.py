@@ -15,9 +15,10 @@ class CategoriesSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = User
-		fields = ('email','password','firstName', 'lastName')
+		fields = ('id','email','password','firstName', 'lastName')
 		extra_kwargs = {
-			'password': {'write_only': True}
+			'password': {'write_only': True},
+			'id': {'read_only': True}
 		}
 	
 	def create(self, validated_data):

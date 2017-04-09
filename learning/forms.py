@@ -13,11 +13,13 @@ class ImageDetailsForm(forms.ModelForm):
 class UserTestResultsForm(forms.ModelForm):
 	class Meta:
 		model = UserTestResults
-		fields = ('image','classifierResult','status')
+		fields = ('image','classifierResult','status','user')
 		widgets = {
 			'status': forms.HiddenInput(),
-			'classifierResult': forms.HiddenInput()
-		}
+			'classifierResult': forms.HiddenInput(),
+			'user': forms.HiddenInput(),
+		}		
+
 
 class signupForm(forms.ModelForm):
 	confirm_password = forms.CharField(widget=forms.PasswordInput())

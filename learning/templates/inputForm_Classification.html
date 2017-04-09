@@ -19,6 +19,7 @@
 <form method="POST" enctype='multipart/form-data'/>
 	{% csrf_token %}
 	{{ form.as_p }}
+	<input type="hidden" value="{{ request.user.id }}" name='user'/>
 	<input type="Submit" value="Click here to upload image" class="btn btn-primary">
 </form>
 

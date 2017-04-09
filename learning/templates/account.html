@@ -2,11 +2,10 @@
 {% block content %}
 
 <h1>Account Information</h1>
-<p><a href={% url 'getUserTestResults' %}>View Test Results</a></p>
-<ul>
-	<li class="list-capitalize">First Name: {{ user.firstName }}</li>
-	<li class="list-capitalize">Last Name: {{ user.lastName }}</li>
-	<li>Email: {{ user.email }}</li>
+<ul class="account">
+	<li class="list-capitalize"><i class="fa fa-user fa-2x" aria-hidden="true"></i> {{ user.firstName }} {{ user.lastName }}</li>
+	<li><i class="fa fa-envelope-o fa-2x" aria-hidden="true"></i> {{ user.email }}</li>
+	<li><i class="fa fa-search fa-2x" aria-hidden="true"></i> <a href={% url 'getUserTestResults' %}>View Test Results</a></li>
 </ul>
 
 {% endblock %}

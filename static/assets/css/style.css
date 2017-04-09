@@ -24,3 +24,24 @@
 .button-group{
 	padding: 20px 20px 20px 0;
 }
+#classificationResult{
+	color: green;
+}
+.account, .errorlist{
+	list-style: none;
+}
+.account li, .errorlist li{
+	font-size: 12pt;
+}
+.errorlist{
+	padding: 0;
+}
+.errorlist li{
+	color: red;
+	margin: 0;
+}
+.errormsg{
+	padding: 0;
+	margin-left: 0;
+	color: red;
+}

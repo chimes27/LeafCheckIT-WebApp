@@ -39,6 +39,7 @@ def startclassify(request):
 		if form.is_valid():
 			imageName = form.instance.image.name
 			if imageName.endswith('.jpg') == True or imageName.endswith('.png') == True:
+				form.user = request.user
 				form.save()
 				formID = form.instance.id
 				imageName = form.instance.image.name

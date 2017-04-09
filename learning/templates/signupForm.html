@@ -2,6 +2,7 @@
 {% block content %}
 <h3>Create LeafCheckIT Account</h3>
 <article class="col-sm-15 maincontent">
+<p>{{message}}</p>
 <form action={% url 'signup' %} method="POST" id="signup">
 	{% csrf_token %}
 	{{ form.as_p }}

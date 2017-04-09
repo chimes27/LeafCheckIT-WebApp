@@ -3,6 +3,7 @@
 <h3>Login to your LeafCheckIT account</h3>
 
 <article>
+<p class="errormsg">{{message}}</p>
 <form action={% url 'login' %} method="POST" class="form-horizontal">
 	{% csrf_token %}
 	<div class="form-group">
