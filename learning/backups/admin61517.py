@@ -1,19 +1,14 @@
 from django.contrib import admin
-from imagekit.admin import AdminThumbnail
-from django.shortcuts import render
 from .models import *
 from django.conf import settings
 from .checkitBackend import CreatingFeat as cf
 from .checkitBackend import Training as trainer
 from django.contrib import messages
 from django.utils.safestring import mark_safe
-from .forms import ImageDetailsForm
-from django.core.files import File
+
 import shutil
 import os
 import uuid
-
-
 
 
 def approveImage(modeladmin, request, queryset):
@@ -32,12 +27,12 @@ deleteImage.short_description = 'Delete selected images'
 def trainImages(modeladmin,request,queryset):
 	pass
 	messages.add_message(request, messages.INFO, mark_safe('<p>Training started....</p>'))
-	dictionary = []	
+	dictionary = []
 	for obj in queryset:
-		imagename = settings.MEDIA_ROOT + "\\%s" % obj.image
+		imagename = settings.MEDIA_ROOT + "/%s" % obj.image
 		categoryname = str(obj.category)
 		dictionary.append({'label': categoryname, 'image': imagename})
-	
+
 	featuremapfile = cf.main(dictionary)
 	svm = trainer.main(featuremapfile)
 	if svm is not None:
@@ -49,17 +44,16 @@ trainImages.short_description = "Use images for training"
 
 def useAsTrainingImage(modeladmin,request,queryset):
 	queryset.update(status='OK')
-
 	for obj in queryset:
 		imagePath = obj.image.path
 		categoryname = str(obj.classifierResult)
-		status = obj.status		
+		status = obj.status
 		catID = Categories.objects.filter(category=categoryname).values('id').distinct()
 		for item in catID:
 			fkId = int(item['id'])
-		
+
 		imageURL = obj.image.name
-		
+		'''
 		imageSplitName = imageURL.split("/")
 		imageName = imageSplitName[-1]
 
@@ -68,7 +62,7 @@ def useAsTrainingImage(modeladmin,request,queryset):
 
 		##checking of file name conflict
 
-		if os.path.isfile(newDirFileName) == True:    
+		if os.path.isfile(newDirFileName) == True:
 			uid = uuid.uuid4()
 			randomName = uid.hex
 			nameSplit = imageName.split(".")
@@ -77,17 +71,17 @@ def useAsTrainingImage(modeladmin,request,queryset):
 			newImageName = imageName
 
 		newPath = os.path.join(datasetPath, newImageName)
-		shutil.copy2(imagePath, newPath)
-		newImageURL = "datasets/" + newImageName		
-		
+		shutil.move(imagePath, newPath)
+		newImageURL = "datasets/" + newImageName
+
 		##save image
-		newData = ImageDetails(image=newImageURL,status=status,category=Categories.objects.get(pk=fkId))
+		#newData = ImageDetails(image=newImageURL,status=status,category=Categories.objects.get(pk=fkId))
+		'''
+		newData = ImageDetails(image=imageURL,status=status,category=Categories.objects.get(pk=fkId))
 		newData.save()
-		#newData = ImageDetails(image=imageURL,status=status,category=Categories.objects.get(pk=fkId))
-		
 		#obj.update(image=newImageURL)
 		messages.add_message(request, messages.SUCCESS, mark_safe('<p>The test results are successfully marked as valid dataset!</p>'))
-		
+
 useAsTrainingImage.short_description = 'Mark result as valid dataset'
 
 class ImageDetailsAdmin(admin.ModelAdmin):
@@ -96,14 +90,14 @@ class ImageDetailsAdmin(admin.ModelAdmin):
 	list_filter=("category","status")
 	actions = [approveImage, rejectImage]
 
-	
+
 class GetApprovedImagesAdmin(admin.ModelAdmin):
  	list_display = ("category", "image_img")
  	list_filter = ["category"]
  	actions = [trainImages]
  	ordering = ('-category',)
  	pass
- 	
+
 
  	def has_add_permission(self,request):
  		return False
@@ -121,11 +115,10 @@ class UserTestResultsAdmin(admin.ModelAdmin):
  	fields = ["image", "classifierResult", "status",]
  	readonly_fields = ('classifierResult','image')
  	actions = [useAsTrainingImage]
-	list_filter = ["classifierResult","status"] 
+	list_filter = ["classifierResult","status"]
 
  	def has_add_permission(self,request):
  		return False
-
 
 admin.site.site_header = 'LeafCheckIT Administration'
 admin.site.site_title = 'LeafCheckIT'

@@ -133,6 +133,7 @@ def create_report(mat):
 def main(input_map):
     
     print "===== Generating and calculating features ====="
+    print(input_map)
     codebook, featureMap = FeatureMapExtraction().getCentroid(input_map)
     model_dir = settings.MODELS_ROOT
 

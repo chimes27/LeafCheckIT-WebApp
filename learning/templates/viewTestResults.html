@@ -12,6 +12,7 @@
 	<tr>
 		<th>{{ item.classifierResult }}</th>
 		<th><a href="{{ MEDIA_URL }}/{{ item.image }}"><img src="{{ MEDIA_URL }}/{{ item.image }}" id="DisplayResult_img"></a></th>
+		<th><a href="{% url 'deleteTestResults' %}?imageID={{item.id}}">Delete</a></th>
 	</tr>
 {% endfor %}
 </table>

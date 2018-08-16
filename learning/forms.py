@@ -9,6 +9,15 @@ class ImageDetailsForm(forms.ModelForm):
 		widgets = {
 			'status': forms.HiddenInput(),
 		}
+		
+	'''
+	def clean_image(self):
+		image = self.cleaned_data.get("image", False)
+		ftype = magic.from_buffer(image.read())
+		if not "PNG" in ftype or not "JPG" in ftype:
+			raise ValidationError("Please upload file in PNG or JPG format")
+		return image	
+	'''
 
 class UserTestResultsForm(forms.ModelForm):
 	class Meta:

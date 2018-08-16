@@ -23,6 +23,8 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.exceptions import ParseError, ValidationError
 from .auth import RestAuthentication
 
+from django.contrib.auth import get_user_model
+
 
 #from rest_framework.renderers import JSONRenderer
 #import json
@@ -38,22 +40,36 @@ def startclassify(request):
 		form = UserTestResultsForm(request.POST, request.FILES)
 		if form.is_valid():
 			imageName = form.instance.image.name
-			if imageName.endswith('.jpg') == True or imageName.endswith('.png') == True:
+			if imageName.endswith('.jpg') == True or imageName.endswith('.png') == True or imageName.endswith('.JPG') == True or imageName.endswith('.PNG') == True:
 				form.save()
 				formID = form.instance.id
 				imageName = form.instance.image.name
 				imageURL = settings.MEDIA_URL + imageName
-				return render(request,'ClassificationMainForm.html', {'imageURL': imageURL, 'imagename': imageName, 'imageID': formID})	
+
+				label = classifier.main(imageName)
+				result = str(label)
+				UserTestResults.objects.filter(pk=formID).update(classifierResult=label)
+				listdesc = Categories.objects.filter(category=result).values('description')
+				dum = listdesc[0]
+				desc = dum['description']
+				return render(request, 'classificationResult.html', {'result': result, 'desc': desc, 'image': imageURL})
+				#return render(request,'ClassificationMainForm.html', {'imageURL': imageURL, 'imagename': imageName, 'imageID': formID})	
 			else:
-				return HttpResponse("Invalid file format. Please select a valid image file")
+				msg = "Invalid file format. Please select a valid image file"
+				return render(request,'err.html',{'msg': msg})
 		else:
-			return HttpResponse("Invalid file format. Please select a valid image file")
+			msg = "Invalid file format. Please select a valid image file"
+			return render(request,'err.html',{'msg': msg})
 	else:
 		if request.session.session_key:
 			form = UserTestResultsForm
 			return render(request,'inputForm_Classification.html', {'form': form})
 		else:
 			return redirect('/login/')
+
+def terms(request):
+	return render(request, 'terms.html')
+
 
 def classify(request):
 	if request.method == 'POST':
@@ -73,6 +89,7 @@ def classify(request):
 	else:
 		return render(request, "<p>Error in using image. Please reupload it.</p>")
 
+
 def nitrogen(request):
 	return render(request, 'nitrogen.html')
 def phosphorus(request):
@@ -82,6 +99,10 @@ def potassium(request):
 
 def aboutLeafCheckIT(request):
 	return render(request,'aboutLeafCheckIT.html')
+
+def contact(request):
+	return render(request,'contact.html')
+
 
 def signup(request):
 	if request.method == 'POST':
@@ -136,6 +157,7 @@ def logout(request):
 def account(request):
 	if request.user.is_authenticated:
 		email = request.user.email
+		User = get_user_model()
 		user = User.objects.get(email=email)
 		return render(request, 'account.html', {'user': user})
 	else:
@@ -144,8 +166,17 @@ def account(request):
 def getUserTestResults(request):
 	if request.user.is_authenticated:
 		user = request.user
-		result = UserTestResults.objects.filter(user=user)
+		result = UserTestResults.objects.filter(user=user).order_by('-date')
 		return render(request, 'viewTestResults.html', {'result': result})
+	else:
+		return HttpResponse("Bad Request")
+
+def deleteTestResults(request):
+	if request.user.is_authenticated:
+		transID = request.GET['imageID'];
+		user = request.user
+		UserTestResults.objects.filter(id=transID, user=user).delete()
+		return redirect('/getUserTestResults/')
 	else:
 		return HttpResponse("Bad Request")
 
@@ -172,7 +203,14 @@ class CreateUsers(APIView):
 		if serializer.is_valid():
 			serializer.save()
 			return Response(serializer.data, status=status.HTTP_201_CREATED)
-		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+		else:
+			email = request.data['email']
+			User = get_user_model()
+			user = User.objects.get(email=email)
+			if user is not None:
+				return Response(serializer.errors, status = status.HTTP_302_FOUND)
+			else:
+				return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class APIViewUsers(APIView):
@@ -205,10 +243,14 @@ class ImageDetailsViewSet(APIView):
 				strLabel = str(label)
 
 				UserTestResults.objects.filter(id=pk).update(classifierResult=strLabel)
-				listdesc = Categories.objects.filter(category=strLabel).values('description')
+				#listdesc = Categories.objects.filter(category=strLabel).values('description')
+				listdesc = Categories.objects.filter(category=strLabel).values('description','img1', 'img2', 'img3')
 				dum = listdesc[0]
 				desc = dum['description']
-				return Response({'label': strLabel, 'desc': desc}, status=status.HTTP_201_CREATED)
+				img1 = str(settings.BASE_URL + settings.MEDIA_URL + dum['img1'])
+				img2 = str(settings.BASE_URL + settings.MEDIA_URL + dum['img2'])
+				img3 = str(settings.BASE_URL + settings.MEDIA_URL + dum['img3'])
+				return Response({'label': strLabel, 'desc': desc, 'img1': img1, 'img2': img2, 'img3': img3}, status=status.HTTP_201_CREATED)
 			return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 		except:
 			raise 
@@ -222,14 +264,34 @@ class GetTestResult(APIView):
 			data = {}
 			image = []
 			category = []
+			transID=[]
 			for item in result:
 				category.append(item.classifierResult)
 				imgpath = settings.BASE_URL + settings.MEDIA_URL + item.image.name
 				image.append(imgpath)
-			data = {'category': category, 'image': image}
+				transID.append(item.id)
+			data = {'id': transID, 'category': category, 'image': image}
 			return Response(data, status=status.HTTP_200_OK)
 		else:
 			return Response(status=status.HTTP_403_FORBIDDEN_REQUEST)
+
+
+class DeleteTestResult(APIView):
+	serializer_class = UserTestResultsSerializer
+	def post(self,request, *args, **kwargs):
+		try:
+			if request.user.is_authenticated:
+				user = request.user
+				imageID = request.data
+				UserTestResults.objects.filter(id=imageID, user=user).delete()
+				data = {'status': 200}
+				return Response(data, status=status.HTTP_200_OK)
+			else:
+				return Response(status=status.HTTP_403_FORBIDDEN_REQUEST)
+		except:
+			raise 
+			return Response(status=status.HTTP_415_BAD_REQUEST)
+
 		
 		
 

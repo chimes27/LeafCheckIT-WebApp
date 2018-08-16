@@ -1,8 +1,16 @@
 {% extends 'base.html' %}
 {% block content %}
-<h1>Classification Result</h1>
-<p><a href={% url 'getUserTestResults' %}>View Test Results Masterlist</a></p>
-<h3 id="classificationResult">{{ result }} detected</h3>
-<p>{{ desc }}</p>
 
+<h1>Classification Result</h1>
+<br/>
+<div class="row">
+<div class="col col-md-5">
+<img src="{{ image }}" id="resImg">
+</div>
+<div class="col col-md-7">
+<h2 id="classificationResult">{{ result }} detected</h2>
+<p>{{ desc }}</p>
+<p><a href={% url 'getUserTestResults' %}>View Test Results Masterlist</a></p>
+</div>
+</div>
 {% endblock %}

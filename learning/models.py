@@ -4,7 +4,7 @@ from django.conf import settings
 from django.utils.html import mark_safe
 from django.contrib.auth.models import AbstractBaseUser, UserManager,PermissionsMixin
 from django.utils.translation import ugettext_lazy as _
-
+#from formatChecker import ContentTypeRestrictedFileField
 
 from .managers import UserManager
 #from django.core.files.storage import FileSystemStorage
@@ -51,6 +51,7 @@ class ImageDetails(models.Model):
 	category = models.ForeignKey('Categories', on_delete= models.CASCADE, default=1)
 	date_uploaded = models.DateTimeField(auto_now_add=True)
 	image = models.ImageField(null=True, upload_to="datasets")	
+	#image = ContentTypeRestrictedFileField(upload_to='datasets', content_types=['image/jpg', 'image/png'])
 	status = models.CharField(max_length=100, choices=STATUS_CHOICES, default='Y')
 	user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, default=1)
 	
@@ -71,6 +72,9 @@ class ImageDetails(models.Model):
 class Categories(models.Model):
 	category = models.CharField(max_length=50)
 	description = models.TextField(max_length=255)
+	img1 = models.ImageField(upload_to="sampleImages")
+	img2 = models.ImageField(upload_to="sampleImages")
+	img3 = models.ImageField(upload_to="sampleImages")
 
 	def __str__(self):
 		return self.category

@@ -9,7 +9,7 @@ from drf_extra_fields.fields import Base64ImageField
 class CategoriesSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = Categories
-		fields = ('category', 'description')
+		fields = ('category', 'description', 'img1', 'img2', 'img3')
 
 
 class UserSerializer(serializers.ModelSerializer):

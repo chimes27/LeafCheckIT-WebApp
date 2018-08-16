@@ -17,7 +17,10 @@ urlpatterns = [
 	url(r'^potassium/$', views.potassium, name='potassium'),
 	url(r'^aboutLeafCheckIT/$', views.aboutLeafCheckIT, name='aboutLeafCheckIT'),
 	url(r'^getUserTestResults/$', views.getUserTestResults, name='getUserTestResults'),
+	url(r'^deleteTestResults', views.deleteTestResults, name='deleteTestResults'),
 	url(r'^account/$', views.account, name='account'),
+	url(r'^contact', views.contact, name='contact'),
+	url(r'^terms', views.terms, name='terms'),
 	#url(r'^getUserTest/$', views.getUserTest, name='getUserTest'),
 	url(r'^login/$', views.login, name="login"),
 	url(r'^logout/$', views.logout, name="logout"),
@@ -26,10 +29,12 @@ urlpatterns = [
 	url(r'^api-user-create', views.CreateUsers.as_view()),
 	url(r'^api-get-user', views.APIViewUsers.as_view()),
 	url(r'^api-gettestResults', views.GetTestResult.as_view()),
+	url(r'^api-deleteTestResults', views.DeleteTestResult.as_view()),
 	url(r'^api-user-logout', views.LogoutAPIUsers.as_view()),
 	url(r'^api-token-auth', rest_framework_views.obtain_auth_token),
 	url(r'^api-imageUpload', views.ImageDetailsViewSet.as_view()),
 	url(r'^$', views.index, name='index'),
 ]
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 urlpatterns = format_suffix_patterns(urlpatterns)
